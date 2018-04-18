@@ -161,7 +161,7 @@ node {
         deleteDir()
 
         if (env.BRANCH_NAME == "develop") {
-            buildDocker(pom.version)
+            //buildDocker(pom.version)
 
             stage('Run/Test Stack') {
                 // set the version #VERSION#

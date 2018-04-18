@@ -1,0 +1,52 @@
+version: "3.4"
+
+services:
+    #APPNAME#:
+        image: #REGHOST#/#REPOSNAME#:#VERSION#
+        environment:
+            - LOGSTASH_URL=#ELASTICURL#
+            - APPDYNAMICS_CONTROLLER_HOST_NAME=appdcontrol.xxxx.com
+            - APPDYNAMICS_CONTROLLER_PORT=443
+            - APPDYNAMICS_CONTROLLER_SSL_ENABLED=true
+            - APPDYNAMICS_AGENT_APPLICATION_NAME=#APPDYNAME#
+            - APPDYNAMICS_AGENT_TIER_NAME=Microservice-#NAME#
+            - APPDYNAMICS_AGENT_BASE_DIR=/agent
+            - APPDYNAMICS_AGENT_ACCOUNT_NAME=#ACCOUNT#
+            - APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY=#KEY#
+            - SPRING_PROFILES_ACTIVE=#ENV#
+            - DNS_SERVICE_NAME=#APPNAME#
+            - BUILD_NUMBER=#BUILDNUMBER#
+        networks:
+            - internal
+            - ucp-hrm
+        labels:
+            - com.docker.ucp.access.label=#UCPGROUP#
+        deploy:
+            mode: replicated
+            replicas: 2
+            placement:
+              preferences:
+                - spread: node.labels.datacenter
+            update_config:
+                parallelism: 1
+                max_failure_ratio: 0
+                order: stop-first
+            restart_policy:
+                condition: on-failure
+                max_attempts: 3
+            labels:
+                - com.docker.ucp.mesh.http=external_route=#HOST#,internal_port=8080
+                - com.docker.ucp.access.label=#UCPGROUP#
+            resources:
+                limits:
+                    memory: 1G
+                reservations:
+                    memory: 0.5G
+networks:
+    internal:
+      driver: overlay
+      labels:
+        - com.docker.ucp.access.label=#UCPGROUP#
+
+    ucp-hrm:
+        external: true

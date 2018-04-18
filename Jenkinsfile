@@ -159,7 +159,9 @@ properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKe
 node {
     try {
         deleteDir()
-	    
+	    stage('checkout') {
+		    checkout scm
+	    }
 	    stage('Run/Test Stack') {
                 // set the version #VERSION#
                 promote (tststack, tsthost, "latest", "tst")

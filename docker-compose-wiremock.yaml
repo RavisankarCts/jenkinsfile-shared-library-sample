@@ -1,0 +1,103 @@
+version: "3.4"
+
+services:
+    #APPNAME#:
+        image: #REGHOST#/#REPOSNAME#:#VERSION#
+        environment:
+            - LOGSTASH_URL=#ELASTICURL#
+            - APPDYNAMICS_CONTROLLER_HOST_NAME=appdcontrol.xxxx.com
+            - APPDYNAMICS_CONTROLLER_PORT=443
+            - APPDYNAMICS_CONTROLLER_SSL_ENABLED=true
+            - APPDYNAMICS_AGENT_APPLICATION_NAME=#APPDYNAME#
+            - APPDYNAMICS_AGENT_TIER_NAME=Microservice-#NAME#
+            - APPDYNAMICS_AGENT_BASE_DIR=/agent
+            - APPDYNAMICS_AGENT_ACCOUNT_NAME=#ACCOUNT#
+            - APPDYNAMICS_AGENT_ACCOUNT_ACCESS_KEY=#KEY#
+            - SPRING_PROFILES_ACTIVE=#ENV#
+            - DNS_SERVICE_NAME=#APPNAME#
+        networks:
+            - internal
+            - fez-monitoring_default
+            - ucp-hrm
+        labels:
+            - com.docker.ucp.access.label=#UCPGROUP#
+        deploy:
+            mode: replicated
+            replicas: 2
+            update_config:
+                parallelism: 2
+                max_failure_ratio: 0
+                order: stop-first
+            restart_policy:
+                condition: on-failure
+                max_attempts: 3
+            labels:
+                - com.docker.ucp.mesh.http=external_route=#HOST#,internal_port=8080
+                - com.docker.ucp.access.label=#UCPGROUP#
+            resources:
+                limits:
+                    memory: 1G
+                reservations:
+                    memory: 0.5G
+    rabbitmq:
+          image: "rabbitmq:3-management"
+          hostname: #RABBIT_HOST#
+          environment:
+            RABBITMQ_DEFAULT_USER: "test"
+            RABBITMQ_DEFAULT_PASS: "elon"
+            RABBITMQ_DEFAULT_VHOST: "createorder"
+          ports:
+            - "5680:5672"
+            - "15680:15672"
+          networks:
+                - ucp-hrm
+          labels:
+              - com.docker.ucp.access.label=#UCPGROUP#
+          deploy:
+              update_config:
+                  parallelism: 1
+                  delay: 30s
+              restart_policy:
+                  condition: on-failure
+                  max_attempts: 3
+              labels:
+                  - com.docker.ucp.mesh.http.1=external_route=http://#RABBIT_HOST#,internal_port=15672
+                  - com.docker.ucp.access.label=#UCPGROUP#
+              resources:
+                  limits:
+                      memory: 0.5G
+                  reservations:
+                      memory: 0.25G
+    #TIPSTUBNAME#:
+        image: rodolpheche/wiremock:2.11.0
+        networks:
+            - ucp-hrm
+        labels:
+            - com.docker.ucp.access.label=#UCPGROUP#
+        deploy:
+            update_config:
+                parallelism: 1
+                delay: 30s
+            restart_policy:
+                condition: on-failure
+                max_attempts: 3
+            labels:
+                - com.docker.ucp.mesh.http=external_route=#TIPSTUBHOST#,internal_port=8080
+                - com.docker.ucp.access.label=#UCPGROUP#
+            resources:
+                limits:
+                    memory: 1G
+                reservations:
+                    memory: 0.5G
+        command: [--verbose]
+networks:
+    internal:
+      driver: overlay
+      labels:
+        - com.docker.ucp.access.label=#UCPGROUP#
+
+    fez-monitoring_default:
+      external: true
+
+    ucp-hrm:
+        external: true

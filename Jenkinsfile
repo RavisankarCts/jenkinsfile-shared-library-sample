@@ -70,25 +70,7 @@ def pushDocker(version, reghost, sign){
     sh "docker logout ${reghost}"
 }
 
-def runAutotests(tag){
-	dir('CustomerConsents/customer-consents-autotests'){
-		try{
-			sh "mvn verify -PcomponentTests -Dspring.profiles.active=tst -Dcucumber.options=\"--tags ${tag}\""
-		} catch (err){
-			error("An error occurred while running autotests " + err)
-			throw err
-		} finally {
-            publishHTML (target: [
-                    allowMissing: false,
-                    alwaysLinkToLastBuild: false,
-                    keepAll: true,
-                    reportDir: 'target/site/cucumber-reports',
-                    reportFiles: "feature-overview.html",
-                    reportName: "AutoTests reports"
-            ])
-		}
-	}
-}
+
 
 def runLoadtests(){
     dir('CustomerConsents/customer-consents-loadtests'){
@@ -165,7 +147,7 @@ node {
 	    stage('Run/Test Stack') {
                 // set the version #VERSION#
                 promote (tststack, tsthost, "latest", "tst")
-                //runAutotests("@Component")
+                runAutotests("@Component")
                 //runLoadtests()
                 //owasp(tsthost)
             }

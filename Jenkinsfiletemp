@@ -9,7 +9,7 @@ node {
 		    checkout scm
 	    }
 	    stage('Run/Test Stack') {
-                echo $appname
+                echo ${appname}
                 // set the version #VERSION#
                 //promote (tststack, tsthost, "latest", "tst")
                 //runAutotests("@Component")

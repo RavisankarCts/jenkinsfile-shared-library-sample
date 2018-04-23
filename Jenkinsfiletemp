@@ -10,8 +10,8 @@ node {
 		    checkout scm
 	    }
 	    stage('Run/Test Stack') {
-	    	def const = load 'Constants.groovy'
-                echo "${const.appname}"
+	    	//def const = load 'Constants.groovy'
+                echo "${appname}"
                 // set the version #VERSION#
                 //promote (tststack, tsthost, "latest", "tst")
                 //runAutotests("@Component")

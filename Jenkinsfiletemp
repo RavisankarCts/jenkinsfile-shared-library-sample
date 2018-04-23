@@ -1,7 +1,6 @@
 @Library('jalogut/jenkins-basic-shared-library-sample') _
 
 
-
 properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '3', numToKeepStr: '5')), disableConcurrentBuilds(), pipelineTriggers([])])
 
 node {
@@ -11,7 +10,8 @@ node {
 		    checkout scm
 	    }
 	    stage('Run/Test Stack') {
-                echo "${appname}"
+	    	def const = load 'Constants.groovy'
+                echo "${const.appname}"
                 // set the version #VERSION#
                 //promote (tststack, tsthost, "latest", "tst")
                 //runAutotests("@Component")

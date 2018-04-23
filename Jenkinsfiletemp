@@ -1,6 +1,6 @@
 @Library('jalogut/jenkins-basic-shared-library-sample') _
 
-appname = "customer-consents"
+
 
 properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '', daysToKeepStr: '3', numToKeepStr: '5')), disableConcurrentBuilds(), pipelineTriggers([])])
 

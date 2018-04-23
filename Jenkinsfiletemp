@@ -11,7 +11,7 @@ node {
 	    }
 	    stage('Run/Test Stack') {
 	    	//def const = load 'Constants.groovy'
-                echo "${appname}"
+                echo "${Constants.appname}"
                 // set the version #VERSION#
                 //promote (tststack, tsthost, "latest", "tst")
                 //runAutotests("@Component")
